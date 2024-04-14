@@ -1,0 +1,79 @@
+#include <deque>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <fstream>
+#include <set>
+#include <unordered_set>
+
+using namespace std;
+
+class bank {
+    string name;
+    double bet;
+    string valuta;
+    string perc;
+    
+public:
+    bank(string n, double b, string v, string p) : name(n), bet(b), valuta(v), perc(p) {}
+    bank() :name(""), bet(0.0), valuta(""), perc("") {}
+
+    friend ostream& operator<<(ostream& outstream, const bank& b1) {
+        outstream << b1.name << " " << b1.bet << " " << b1.valuta << " " << b1.perc;
+        return outstream;
+    }
+
+    bool operator<(const bank& other) const {
+        return name < other.name;
+    }
+    bool operator==(const bank& other) const {
+        return name == other.name && bet == other.bet && valuta == other.valuta && perc == other.perc;
+    }
+    struct hashbank {
+            size_t operator()(const bank& b1) const {
+                return hash<string>()(b1.name) ^ hash<double>()(b1.bet) ^ hash<string>()(b1.valuta) ^ hash<string>()(b1.perc);
+               }
+           };
+};
+
+
+int main() {
+    vector<bank> t;
+    ifstream file("input.txt");
+    set<bank> set1;
+    unordered_set<bank,bank::hashbank> set2;
+    string name, valuta, perc;
+
+    double bet;
+
+    while (file >> name >> bet >> valuta >> perc) {
+        bank b1(name, bet, valuta, perc);
+        t.emplace_back(b1);
+        set1.insert(b1);
+        set2.insert(b1);
+    }
+    
+    file.close();
+    
+    sort(t.begin(), t.end());
+    deque<bank> d;
+    copy(t.begin(), t.end(), back_inserter(d));
+    
+    ofstream outFile("output.txt");
+
+    for (const auto& f : d) {
+        outFile << f;
+    }
+    for (const auto& f : set1) {
+        outFile << f;
+    }
+    for (const auto& f : set2) {
+        outFile << f;
+    }
+
+
+    outFile.close();
+
+    return 0;
+}
